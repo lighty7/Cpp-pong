@@ -1,0 +1,31 @@
+name: C++ CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Build Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake ninja-build
+
+    - name: Configure CMake
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build Executable & Tests
+      run: cmake --build build --config Release
+
+    - name: Run Physics Tests
+      run: ctest --test-dir build --output-on-failure
+
+    - name: Test Docker Container Build
+      run: docker build -t cpp-pingpong:latest .
