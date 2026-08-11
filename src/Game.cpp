@@ -1,127 +1,141 @@
-/**
- * @file Game.cpp
- * @brief Implementation of the main game loop, frame timing, collisions, and state.
- * 
- * TUTORIAL SYNTAX & CONCEPTS:
- * 1. High-Resolution Game Loop:
- *    - `std::chrono::high_resolution_clock::now()` captures exact time points.
- *    - `std::chrono::duration<double>(now - lastTime).count()` converts time span into fractional seconds.
- *    - `std::this_thread::sleep_for(duration)` yields CPU time to keep frame rates steady at ~60 FPS.
- * 2. Axis-Aligned Bounding Box (AABB) Collisions & Angle Reflections.
- */
-
 #include "Game.hpp"
-#include <chrono>
-#include <thread>
-#include <iostream>
+#include <SDL.h>
+#include <algorithm>
 
 namespace PingPong {
 
     Game::Game()
-        : m_ball(Config::BOARD_WIDTH / 2.0, Config::BOARD_HEIGHT / 2.0),
-          m_player(2.0, Config::BOARD_HEIGHT / 2.0),
-          m_bot(Config::BOARD_WIDTH - 3.0, Config::BOARD_HEIGHT / 2.0),
-          m_renderer(Config::BOARD_WIDTH, Config::BOARD_HEIGHT),
+        : m_ball(Config::SCREEN_WIDTH / 2.0, Config::SCREEN_HEIGHT / 2.0),
+          m_player(30.0, Config::SCREEN_HEIGHT / 2.0),
+          m_bot(Config::SCREEN_WIDTH - 30.0, Config::SCREEN_HEIGHT / 2.0),
+          m_renderer(Config::SCREEN_WIDTH, Config::SCREEN_HEIGHT),
           m_difficulty(BotDifficulty::Medium),
           m_state(GameState::Menu),
           m_running(true),
           m_playerWon(false) {}
 
     void Game::run() {
-        // Show start menu to select bot difficulty
-        m_difficulty = m_renderer.renderMenu();
-        m_state = GameState::Playing;
+        if (!m_renderer.init()) {
+            return;
+        }
 
-        // Clear menu screen before starting game render
-        m_renderer.clearScreen();
+        Uint32 lastTime = SDL_GetTicks();
 
-        auto lastTime = std::chrono::high_resolution_clock::now();
-
-        while (m_running && m_state != GameState::GameOver) {
-            auto currentTime = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsedTime = currentTime - lastTime;
+        while (m_running) {
+            Uint32 currentTime = SDL_GetTicks();
+            double deltaTime = (currentTime - lastTime) / 1000.0;
             lastTime = currentTime;
 
-            double deltaTime = elapsedTime.count();
-
-            // Clamp delta time to avoid large physics jumps during system lag spikes
             if (deltaTime > 0.05) deltaTime = 0.05;
 
-            processInput();
+            int mouseX = 0, mouseY = 0;
+            SDL_GetMouseState(&mouseX, &mouseY);
+            bool mouseClick = false;
 
-            if (m_state == GameState::Playing) {
-                update(deltaTime);
-                handleCollisions();
-                checkScore();
+            char keyChar = 0;
+            int keySym = 0;
+
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    m_running = false;
+                } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                    if (event.button.button == SDL_BUTTON_LEFT) {
+                        mouseClick = true;
+                    }
+                } else if (event.type == SDL_KEYDOWN) {
+                    keySym = event.key.keysym.sym;
+                    if (keySym == SDLK_ESCAPE) {
+                        m_running = false;
+                    } else if (keySym >= SDLK_1 && keySym <= SDLK_3) {
+                        keyChar = '1' + (keySym - SDLK_1);
+                    }
+                }
             }
 
-            m_renderer.render(m_ball, m_player, m_bot, m_difficulty, m_state == GameState::Paused);
+            const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
 
-            // Cap game loop at target FPS (~60 FPS -> 16.6ms per frame)
-            auto frameEndTime = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double, std::milli> frameDuration = frameEndTime - currentTime;
+            switch (m_state) {
+                case GameState::Menu:
+                    if (m_renderer.renderMenu(m_difficulty, mouseX, mouseY, mouseClick, keyChar)) {
+                        resetRound();
+                        m_state = GameState::Playing;
+                    }
+                    break;
 
-            if (frameDuration.count() < Config::FRAME_DURATION_MS) {
-                double sleepTime = Config::FRAME_DURATION_MS - frameDuration.count();
-                std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(sleepTime));
+                case GameState::Playing:
+                    if (keySym == SDLK_p) {
+                        m_state = GameState::Paused;
+                    } else {
+                        if (keyboardState[SDL_SCANCODE_W] || keyboardState[SDL_SCANCODE_UP]) {
+                            m_player.moveUp(deltaTime, 10.0);
+                        }
+                        if (keyboardState[SDL_SCANCODE_S] || keyboardState[SDL_SCANCODE_DOWN]) {
+                            m_player.moveDown(deltaTime, Config::SCREEN_HEIGHT - 10.0);
+                        }
+                        update(deltaTime);
+                        handleCollisions();
+                        checkScore();
+                    }
+                    m_renderer.render(m_ball, m_player, m_bot, m_difficulty, false);
+                    break;
+
+                case GameState::Paused:
+                    if (keySym == SDLK_p) {
+                        m_state = GameState::Playing;
+                    }
+                    m_renderer.render(m_ball, m_player, m_bot, m_difficulty, true);
+                    break;
+
+                case GameState::GameOver:
+                    if (m_renderer.renderGameOver(m_playerWon, keySym)) {
+                        m_player.resetScore();
+                        m_bot.resetScore();
+                        m_state = GameState::Menu;
+                    }
+                    break;
             }
+
+            SDL_Delay(16);
         }
 
-        Renderer::disableRawMode();
-        m_renderer.renderGameOver(m_playerWon);
+        m_renderer.cleanup();
     }
 
-    void Game::processInput() {
-        char key = Renderer::readKey();
-        if (key == 0) return;
+    bool Game::updateFrame() {
+        return m_running;
+    }
 
-        // Key controls
-        if (key == 'q' || key == 'Q') {
-            m_running = false;
-        } else if (key == 'p' || key == 'P') {
-            if (m_state == GameState::Playing) {
-                m_state = GameState::Paused;
-            } else if (m_state == GameState::Paused) {
-                m_state = GameState::Playing;
-            }
-        }
-
-        if (m_state == GameState::Playing) {
-            // W / S keys for up/down movement
-            if (key == 'w' || key == 'W') {
-                m_player.moveUp(0.05, 0.0);
-            } else if (key == 's' || key == 'S') {
-                m_player.moveDown(0.05, Config::BOARD_HEIGHT);
-            }
-        }
+    void Game::processInput(double deltaTime) {
+        (void)deltaTime;
     }
 
     void Game::update(double deltaTime) {
         m_ball.update(deltaTime);
-        m_bot.updateBot(m_ball, m_difficulty, deltaTime, 0.0, Config::BOARD_HEIGHT);
+        m_bot.updateBot(m_ball, m_difficulty, deltaTime, 10.0, Config::SCREEN_HEIGHT - 10.0);
     }
 
     void Game::handleCollisions() {
         // Top and Bottom Wall collisions
-        if (m_ball.getY() <= 0.0) {
-            m_ball.setY(0.0);
+        if (m_ball.getY() <= 10.0 + Config::BALL_RADIUS) {
+            m_ball.setY(10.0 + Config::BALL_RADIUS);
             m_ball.bounceY();
-        } else if (m_ball.getY() >= Config::BOARD_HEIGHT - 1.0) {
-            m_ball.setY(Config::BOARD_HEIGHT - 1.0);
+        } else if (m_ball.getY() >= Config::SCREEN_HEIGHT - 10.0 - Config::BALL_RADIUS) {
+            m_ball.setY(Config::SCREEN_HEIGHT - 10.0 - Config::BALL_RADIUS);
             m_ball.bounceY();
         }
 
         // Left Player Paddle Collision
         if (m_player.checkCollision(m_ball.getX(), m_ball.getY()) && m_ball.getDirX() < 0) {
             double offset = m_player.getHitOffset(m_ball.getY());
-            m_ball.setX(m_player.getX() + 1.0);
+            m_ball.setX(m_player.getX() + Config::PADDLE_WIDTH / 2.0 + Config::BALL_RADIUS);
             m_ball.bounceX(offset);
         }
 
         // Right Bot Paddle Collision
         if (m_bot.checkCollision(m_ball.getX(), m_ball.getY()) && m_ball.getDirX() > 0) {
             double offset = m_bot.getHitOffset(m_ball.getY());
-            m_ball.setX(m_bot.getX() - 1.0);
+            m_ball.setX(m_bot.getX() - Config::PADDLE_WIDTH / 2.0 - Config::BALL_RADIUS);
             m_ball.bounceX(offset);
         }
     }
@@ -130,29 +144,31 @@ namespace PingPong {
         // Ball went past Left Wall -> Point for Bot
         if (m_ball.getX() < 0) {
             m_bot.incrementScore();
-            resetRound();
+            checkMatchOver();
         }
         // Ball went past Right Wall -> Point for Player
-        else if (m_ball.getX() > Config::BOARD_WIDTH) {
+        else if (m_ball.getX() > Config::SCREEN_WIDTH) {
             m_player.incrementScore();
-            resetRound();
+            checkMatchOver();
         }
+    }
 
-        // Check Match Winner
+    void Game::checkMatchOver() {
         if (m_player.getScore() >= Config::MAX_SCORE) {
             m_playerWon = true;
             m_state = GameState::GameOver;
         } else if (m_bot.getScore() >= Config::MAX_SCORE) {
             m_playerWon = false;
             m_state = GameState::GameOver;
+        } else {
+            resetRound();
         }
     }
 
     void Game::resetRound() {
-        m_ball.reset(Config::BOARD_WIDTH / 2.0, Config::BOARD_HEIGHT / 2.0);
-        m_player.setY(Config::BOARD_HEIGHT / 2.0);
-        m_bot.setY(Config::BOARD_HEIGHT / 2.0);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        m_ball.reset(Config::SCREEN_WIDTH / 2.0, Config::SCREEN_HEIGHT / 2.0);
+        m_player.setY(Config::SCREEN_HEIGHT / 2.0);
+        m_bot.setY(Config::SCREEN_HEIGHT / 2.0);
     }
 
 } // namespace PingPong

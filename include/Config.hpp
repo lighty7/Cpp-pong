@@ -16,6 +16,7 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+#include <SDL.h>
 #include <string>
 
 namespace PingPong {
@@ -33,28 +34,32 @@ namespace PingPong {
      * @brief Global Game Configuration Parameters
      */
     struct Config {
-        // Playing field dimensions (Terminal characters)
+        // GUI Window dimensions
+        static constexpr int SCREEN_WIDTH = 800;
+        static constexpr int SCREEN_HEIGHT = 600;
+
+        // Legacy board dimensions
         static constexpr int BOARD_WIDTH = 80;
         static constexpr int BOARD_HEIGHT = 24;
 
-        // Target Frames Per Second (FPS) for smooth physics calculations
+        // Target Frames Per Second (FPS)
         static constexpr int TARGET_FPS = 60;
-        static constexpr double FRAME_DURATION_MS = 1000.0 / TARGET_FPS;
 
-        // Paddle Dimensions
-        static constexpr int PADDLE_HEIGHT = 5;
+        // Paddle & Ball Dimensions (Pixels)
+        static constexpr float PADDLE_WIDTH = 16.0f;
+        static constexpr float PADDLE_HEIGHT = 100.0f;
+        static constexpr float BALL_RADIUS = 12.0f;
 
         // Winning Score Threshold
         static constexpr int MAX_SCORE = 5;
 
-        // ANSI Color Codes for retro graphics in terminal
-        static const std::string COLOR_RESET;
-        static const std::string COLOR_BORDER;
-        static const std::string COLOR_PLAYER;
-        static const std::string COLOR_BOT;
-        static const std::string COLOR_BALL;
-        static const std::string COLOR_SCORE;
-        static const std::string COLOR_TITLE;
+        // SDL_Color instances
+        static const SDL_Color COLOR_BACKGROUND;
+        static const SDL_Color COLOR_BORDER;
+        static const SDL_Color COLOR_PLAYER;
+        static const SDL_Color COLOR_BOT;
+        static const SDL_Color COLOR_BALL;
+        static const SDL_Color COLOR_NET;
     };
 
 } // namespace PingPong

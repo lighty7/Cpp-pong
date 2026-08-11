@@ -15,6 +15,7 @@
 #include "Config.hpp"
 #include "Ball.hpp"
 #include "Paddle.hpp"
+#include <SDL.h>
 
 namespace PingPong {
 
@@ -22,46 +23,30 @@ namespace PingPong {
     private:
         int m_width;
         int m_height;
+        SDL_Window* m_window;
+        SDL_Renderer* m_sdlRenderer;
 
     public:
-        Renderer(int width = Config::BOARD_WIDTH, int height = Config::BOARD_HEIGHT);
+        Renderer(int width = Config::SCREEN_WIDTH, int height = Config::SCREEN_HEIGHT);
         ~Renderer();
 
-        /**
-         * @brief Enables POSIX raw terminal mode for non-blocking key presses.
-         */
-        static void enableRawMode();
+        bool init();
+        void cleanup();
 
-        /**
-         * @brief Restores original terminal settings on exit.
-         */
-        static void disableRawMode();
-
-        /**
-         * @brief Checks if a key has been pressed on stdin without blocking execution.
-         * @return Character code pressed, or 0 if no input available.
-         */
-        static char readKey();
-
-        /**
-         * @brief Clears screen buffer.
-         */
         void clearScreen() const;
+        void present() const;
 
-        /**
-         * @brief Renders the entire game state to stdout.
-         */
         void render(const Ball& ball, const Paddle& player, const Paddle& bot, BotDifficulty diff, bool paused) const;
+        bool renderMenu(BotDifficulty& selectedDiff, int mouseX, int mouseY, bool mouseClick, char keyChar) const;
+        bool renderGameOver(bool playerWon, int keySym) const;
 
-        /**
-         * @brief Displays start menu to pick bot difficulty level.
-         */
-        BotDifficulty renderMenu() const;
+        SDL_Window* getWindow() const { return m_window; }
+        SDL_Renderer* getSDLRenderer() const { return m_sdlRenderer; }
 
-        /**
-         * @brief Displays game over summary screen.
-         */
-        void renderGameOver(bool playerWon) const;
+    private:
+        void drawFilledCircle(int centerX, int centerY, int radius, SDL_Color color) const;
+        void drawRect(int x, int y, int w, int h, SDL_Color color) const;
+        void drawRectOutline(int x, int y, int w, int h, SDL_Color color) const;
     };
 
 } // namespace PingPong

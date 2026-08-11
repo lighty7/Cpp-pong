@@ -1,13 +1,13 @@
-# 🏓 Ping-Pong (C++ Edition)
+# 🏓 Ping-Pong (C++ GUI Edition)
 
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://isocpp.org/)
 [![CMake](https://img.shields.io/badge/CMake-3.16%2B-brightgreen.svg)](https://cmake.org/)
-[![Docker Container](https://img.shields.io/badge/Docker-Ready-blue)](https://www.docker.com/)
+[![GUI Engine](https://img.shields.io/badge/SDL2-2D%20GUI-blue.svg)](https://www.libsdl.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An industry-standard, object-oriented, terminal-based **Ping-Pong game written in modern C++17**. Features an intelligent autonomous Computer Bot opponent with selectable difficulty levels, high-resolution frame delta timing (~60 FPS), non-blocking POSIX input handling, and 24-bit ANSI TrueColor retro graphics.
+An industry-standard, object-oriented **2D Graphical Ping-Pong game written in modern C++17** using **SDL2**. Features interactive mouse/keyboard navigation, 60 FPS hardware rendering, custom neon visual themes, and an intelligent Bot opponent with 3 difficulty levels.
 
-This repository serves as both a production-ready application and an **in-depth C++ tutorial reference** explaining Object-Oriented Programming (OOP), RAII, raw terminal manipulation, mathematical trajectory prediction, and modern CMake build pipelines.
+This repository serves as both a production-ready application and an **in-depth C++ tutorial reference** explaining Object-Oriented Programming (OOP), RAII, SDL2 2D hardware graphics rendering, trajectory prediction, and modern CMake build pipelines.
 
 ---
 
@@ -17,15 +17,12 @@ This repository serves as both a production-ready application and an **in-depth 
 
 | Concept | File Location | Description & Syntax Reference |
 | :--- | :--- | :--- |
+| **SDL2 2D Hardware Graphics** | [`Renderer.cpp`](src/Renderer.cpp) | `SDL_RenderFillRect`, `SDL_SetRenderDrawColor`, and double-buffering. |
 | **Encapsulation & Visibility** | [`Ball.hpp`](include/Ball.hpp), [`Paddle.hpp`](include/Paddle.hpp) | Private data members (`m_x`, `m_y`) protected behind getter methods (`getX() const`). |
 | **Const Correctness** | [`Ball.hpp`](include/Ball.hpp) | Marking getter methods with `const` guarantees no instance state mutation. |
 | **Header Guards** | [`Config.hpp`](include/Config.hpp) | `#ifndef CONFIG_HPP ... #define ... #endif` avoids header redefinition errors. |
 | **Namespaces** | [`Config.hpp`](include/Config.hpp) | `namespace PingPong { ... }` prevents identifier collisions in global scope. |
 | **Scoped Enums** | [`Config.hpp`](include/Config.hpp) | `enum class BotDifficulty { Easy, Medium, Hard };` provides strongly typed enumerations. |
-| **Compile-time Constants** | [`Config.hpp`](include/Config.hpp) | `constexpr int BOARD_WIDTH = 80;` evaluates values at compile time. |
-| **Chrono High-Res Clock** | [`Game.cpp`](src/Game.cpp) | `std::chrono::high_resolution_clock` regulates frame rate and delta time (`dt`). |
-| **Non-blocking Terminal IO** | [`Renderer.cpp`](src/Renderer.cpp) | Uses POSIX `<termios.h>` to modify `c_lflag` (disabling `ICANON` and `ECHO`). |
-| **Pseudo-randomness** | [`Ball.cpp`](src/Ball.cpp) | Modern `std::mt19937` engine with `std::uniform_real_distribution`. |
 
 ---
 
@@ -46,8 +43,8 @@ This repository serves as both a production-ready application and an **in-depth 
 +-------+--------+       +----------------+        +---------+------+
 |    Ball.cpp    |       |   Paddle.cpp   |        |  Renderer.cpp  |
 +----------------+       +----------------+        +----------------+
-(Kinematics &    )       (Player & Bot    )        (ANSI Terminal   )
-(Bounce Physics  )       (Tracking Logic  )        (Raw Mode Screen )
+(Kinematics &    )       (Player & Bot    )        (SDL2 2D         )
+(Bounce Physics  )       (Tracking Logic  )        (Hardware Render )
 ```
 
 ### Bot Opponent Algorithm

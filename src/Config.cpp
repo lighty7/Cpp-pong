@@ -14,13 +14,12 @@
 
 namespace PingPong {
 
-    // Modern color palette: Blue (#4285F4), Red (#EA4335), Yellow (#FBBC05), Green (#34A853)
-    const std::string Config::COLOR_RESET  = "\033[0m";
-    const std::string Config::COLOR_BORDER = "\033[38;2;66;133;244m";  // Blue
-    const std::string Config::COLOR_PLAYER = "\033[38;2;52;168;83m";   // Green
-    const std::string Config::COLOR_BOT    = "\033[38;2;234;67;53m";   // Red
-    const std::string Config::COLOR_BALL   = "\033[38;2;251;188;5m";  // Yellow
-    const std::string Config::COLOR_SCORE  = "\033[1;37m";             // Bold White
-    const std::string Config::COLOR_TITLE  = "\033[1;36m";             // Bold Cyan
+    // Modern color palette instances for SDL2 hardware renderer
+    const SDL_Color Config::COLOR_BACKGROUND = { 20, 24, 32, 255 };   // Dark sleek background
+    const SDL_Color Config::COLOR_BORDER     = { 66, 133, 244, 255 };  // Electric Blue
+    const SDL_Color Config::COLOR_PLAYER     = { 52, 168, 83, 255 };   // Vibrant Green
+    const SDL_Color Config::COLOR_BOT        = { 234, 67, 53, 255 };   // Crimson Red
+    const SDL_Color Config::COLOR_BALL       = { 251, 188, 5, 255 };   // Neon Yellow
+    const SDL_Color Config::COLOR_NET        = { 100, 115, 140, 150 }; // Translucent Net
 
 } // namespace PingPong

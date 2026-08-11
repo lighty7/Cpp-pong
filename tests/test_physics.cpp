@@ -39,7 +39,7 @@ void testPaddleCollision() {
     // Ball at same coordinate should collide
     assert(paddle.checkCollision(5.0, 10.0) == true);
     // Ball far away should not collide
-    assert(paddle.checkCollision(25.0, 10.0) == false);
+    assert(paddle.checkCollision(100.0, 10.0) == false);
     std::cout << "[PASS] Paddle Collision Test" << std::endl;
 }
 

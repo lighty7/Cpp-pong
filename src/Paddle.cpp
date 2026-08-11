@@ -18,7 +18,7 @@
 namespace PingPong {
 
     Paddle::Paddle(double x, double startY, int height)
-        : m_x(x), m_y(startY), m_height(height), m_speed(24.0), m_score(0) {}
+        : m_x(x), m_y(startY), m_height(height), m_speed(550.0), m_score(0) {}
 
     void Paddle::moveUp(double deltaTime, double minY) {
         m_y -= m_speed * deltaTime;
@@ -65,7 +65,7 @@ namespace PingPong {
         }
 
         // Deadzone threshold prevents jittering when paddle is close to target
-        constexpr double deadzone = 0.5;
+        constexpr double deadzone = 5.0;
         if (m_y < targetY - deadzone) {
             m_y += botSpeed * deltaTime;
         } else if (m_y > targetY + deadzone) {
@@ -81,8 +81,8 @@ namespace PingPong {
     bool Paddle::checkCollision(double ballX, double ballY) const {
         double halfH = m_height / 2.0;
         // Check X threshold proximity and Y coordinate overlap range
-        bool xMatch = (std::abs(ballX - m_x) <= 1.2);
-        bool yMatch = (ballY >= m_y - halfH - 0.5) && (ballY <= m_y + halfH + 0.5);
+        bool xMatch = (std::abs(ballX - m_x) <= 16.0);
+        bool yMatch = (ballY >= m_y - halfH - 8.0) && (ballY <= m_y + halfH + 8.0);
         return xMatch && yMatch;
     }
 

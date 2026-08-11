@@ -44,11 +44,18 @@ namespace PingPong {
          */
         void run();
 
+        /**
+         * @brief Updates a single frame for Raylib event loop.
+         * @return True if game continues running, false to exit.
+         */
+        bool updateFrame();
+
     private:
-        void processInput();
+        void processInput(double deltaTime);
         void update(double deltaTime);
         void handleCollisions();
         void checkScore();
+        void checkMatchOver();
         void resetRound();
     };
 

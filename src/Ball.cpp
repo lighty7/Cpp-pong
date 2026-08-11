@@ -17,14 +17,14 @@
 namespace PingPong {
 
     Ball::Ball(double startX, double startY)
-        : m_x(startX), m_y(startY), m_dirX(1.0), m_dirY(0.0), m_speed(32.0) {
+        : m_x(startX), m_y(startY), m_dirX(1.0), m_dirY(0.0), m_speed(450.0) {
         reset(startX, startY);
     }
 
     void Ball::reset(double startX, double startY) {
         m_x = startX;
         m_y = startY;
-        m_speed = 32.0; // Units per second
+        m_speed = 450.0; // Pixels per second
 
         // Use random engine to seed initial serve angle
         static std::random_device rd;
@@ -54,8 +54,8 @@ namespace PingPong {
         m_dirY = hitOffset * 1.2;
 
         // Slight speed increase on every paddle volley to increase difficulty
-        if (m_speed < 60.0) {
-            m_speed += 1.5;
+        if (m_speed < 850.0) {
+            m_speed += 25.0;
         }
     }
 
