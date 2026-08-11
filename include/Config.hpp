@@ -21,12 +21,12 @@
 namespace PingPong {
 
     /**
-     * @brief Defines AI Difficulty Levels affecting paddle reaction speed & prediction accuracy.
+     * @brief Defines Bot Difficulty Levels affecting paddle reaction speed & prediction accuracy.
      */
-    enum class AIDifficulty {
-        Easy,     // AI moves with intentional delay and reduced speed
-        Medium,   // AI moves at normal speed with occasional miscalculations
-        Hard      // AI calculates trajectory mathematically with high precision
+    enum class BotDifficulty {
+        Easy,     // Bot moves with intentional delay and reduced speed
+        Medium,   // Bot moves at normal speed with occasional miscalculations
+        Hard      // Bot calculates trajectory mathematically with high precision
     };
 
     /**
@@ -47,11 +47,11 @@ namespace PingPong {
         // Winning Score Threshold
         static constexpr int MAX_SCORE = 5;
 
-        // ANSI Color Codes for Google-styled retro graphics in terminal
+        // ANSI Color Codes for retro graphics in terminal
         static const std::string COLOR_RESET;
         static const std::string COLOR_BORDER;
         static const std::string COLOR_PLAYER;
-        static const std::string COLOR_AI;
+        static const std::string COLOR_BOT;
         static const std::string COLOR_BALL;
         static const std::string COLOR_SCORE;
         static const std::string COLOR_TITLE;

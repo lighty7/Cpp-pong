@@ -20,15 +20,15 @@ namespace PingPong {
     Game::Game()
         : m_ball(Config::BOARD_WIDTH / 2.0, Config::BOARD_HEIGHT / 2.0),
           m_player(2.0, Config::BOARD_HEIGHT / 2.0),
-          m_ai(Config::BOARD_WIDTH - 3.0, Config::BOARD_HEIGHT / 2.0),
+          m_bot(Config::BOARD_WIDTH - 3.0, Config::BOARD_HEIGHT / 2.0),
           m_renderer(Config::BOARD_WIDTH, Config::BOARD_HEIGHT),
-          m_difficulty(AIDifficulty::Medium),
+          m_difficulty(BotDifficulty::Medium),
           m_state(GameState::Menu),
           m_running(true),
           m_playerWon(false) {}
 
     void Game::run() {
-        // Show start menu to select AI difficulty
+        // Show start menu to select bot difficulty
         m_difficulty = m_renderer.renderMenu();
         m_state = GameState::Playing;
 
@@ -55,7 +55,7 @@ namespace PingPong {
                 checkScore();
             }
 
-            m_renderer.render(m_ball, m_player, m_ai, m_difficulty, m_state == GameState::Paused);
+            m_renderer.render(m_ball, m_player, m_bot, m_difficulty, m_state == GameState::Paused);
 
             // Cap game loop at target FPS (~60 FPS -> 16.6ms per frame)
             auto frameEndTime = std::chrono::high_resolution_clock::now();
@@ -98,7 +98,7 @@ namespace PingPong {
 
     void Game::update(double deltaTime) {
         m_ball.update(deltaTime);
-        m_ai.updateAI(m_ball, m_difficulty, deltaTime, 0.0, Config::BOARD_HEIGHT);
+        m_bot.updateBot(m_ball, m_difficulty, deltaTime, 0.0, Config::BOARD_HEIGHT);
     }
 
     void Game::handleCollisions() {
@@ -118,18 +118,18 @@ namespace PingPong {
             m_ball.bounceX(offset);
         }
 
-        // Right AI Paddle Collision
-        if (m_ai.checkCollision(m_ball.getX(), m_ball.getY()) && m_ball.getDirX() > 0) {
-            double offset = m_ai.getHitOffset(m_ball.getY());
-            m_ball.setX(m_ai.getX() - 1.0);
+        // Right Bot Paddle Collision
+        if (m_bot.checkCollision(m_ball.getX(), m_ball.getY()) && m_ball.getDirX() > 0) {
+            double offset = m_bot.getHitOffset(m_ball.getY());
+            m_ball.setX(m_bot.getX() - 1.0);
             m_ball.bounceX(offset);
         }
     }
 
     void Game::checkScore() {
-        // Ball went past Left Wall -> Point for AI
+        // Ball went past Left Wall -> Point for Bot
         if (m_ball.getX() < 0) {
-            m_ai.incrementScore();
+            m_bot.incrementScore();
             resetRound();
         }
         // Ball went past Right Wall -> Point for Player
@@ -142,7 +142,7 @@ namespace PingPong {
         if (m_player.getScore() >= Config::MAX_SCORE) {
             m_playerWon = true;
             m_state = GameState::GameOver;
-        } else if (m_ai.getScore() >= Config::MAX_SCORE) {
+        } else if (m_bot.getScore() >= Config::MAX_SCORE) {
             m_playerWon = false;
             m_state = GameState::GameOver;
         }
@@ -151,7 +151,7 @@ namespace PingPong {
     void Game::resetRound() {
         m_ball.reset(Config::BOARD_WIDTH / 2.0, Config::BOARD_HEIGHT / 2.0);
         m_player.setY(Config::BOARD_HEIGHT / 2.0);
-        m_ai.setY(Config::BOARD_HEIGHT / 2.0);
+        m_bot.setY(Config::BOARD_HEIGHT / 2.0);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 

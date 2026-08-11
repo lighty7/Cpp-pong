@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.16)
 # Define project name, version, and language
 project(CppPingPong
     VERSION 1.0.0
-    DESCRIPTION "Terminal-based Google Ping-Pong game with AI written in C++"
+    DESCRIPTION "Terminal-based Ping-Pong game written in C++"
     LANGUAGES CXX
 )
 

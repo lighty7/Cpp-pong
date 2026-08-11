@@ -48,14 +48,14 @@ namespace PingPong {
         void moveDown(double deltaTime, double maxY);
 
         /**
-         * @brief AI Control Logic: Automatically tracks and moves towards ball position.
+         * @brief Bot Control Logic: Automatically tracks and moves towards ball position.
          * @param ball Reference to current ball instance
-         * @param difficulty Level of AI performance (Easy, Medium, Hard)
+         * @param difficulty Level of Bot performance (Easy, Medium, Hard)
          * @param deltaTime Frame time step
          * @param minY Boundary top
          * @param maxY Boundary bottom
          */
-        void updateAI(const Ball& ball, AIDifficulty difficulty, double deltaTime, double minY, double maxY);
+        void updateBot(const Ball& ball, BotDifficulty difficulty, double deltaTime, double minY, double maxY);
 
         /**
          * @brief Checks if a given point (ballX, ballY) hits this paddle.

@@ -51,12 +51,12 @@ namespace PingPong {
         /**
          * @brief Renders the entire game state to stdout.
          */
-        void render(const Ball& ball, const Paddle& player, const Paddle& ai, AIDifficulty diff, bool paused) const;
+        void render(const Ball& ball, const Paddle& player, const Paddle& bot, BotDifficulty diff, bool paused) const;
 
         /**
-         * @brief Displays start menu to pick AI difficulty level.
+         * @brief Displays start menu to pick bot difficulty level.
          */
-        AIDifficulty renderMenu() const;
+        BotDifficulty renderMenu() const;
 
         /**
          * @brief Displays game over summary screen.

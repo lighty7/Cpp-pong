@@ -36,40 +36,40 @@ namespace PingPong {
         }
     }
 
-    void Paddle::updateAI(const Ball& ball, AIDifficulty difficulty, double deltaTime, double minY, double maxY) {
+    void Paddle::updateBot(const Ball& ball, BotDifficulty difficulty, double deltaTime, double minY, double maxY) {
         double targetY = ball.getY();
-        double aiSpeed = m_speed;
+        double botSpeed = m_speed;
 
         switch (difficulty) {
-            case AIDifficulty::Easy:
-                // Only react if ball is approaching the AI side
+            case BotDifficulty::Easy:
+                // Only react if ball is approaching the bot side
                 if (ball.getDirX() > 0) {
-                    aiSpeed = m_speed * 0.55;
+                    botSpeed = m_speed * 0.55;
                 } else {
                     return; // Idle when ball moves away
                 }
                 break;
 
-            case AIDifficulty::Medium:
+            case BotDifficulty::Medium:
                 if (ball.getDirX() > 0) {
-                    aiSpeed = m_speed * 0.80;
+                    botSpeed = m_speed * 0.80;
                 } else {
-                    aiSpeed = m_speed * 0.30;
+                    botSpeed = m_speed * 0.30;
                 }
                 break;
 
-            case AIDifficulty::Hard:
+            case BotDifficulty::Hard:
                 // Full speed tracking with predictive intercept
-                aiSpeed = m_speed * 1.10;
+                botSpeed = m_speed * 1.10;
                 break;
         }
 
         // Deadzone threshold prevents jittering when paddle is close to target
         constexpr double deadzone = 0.5;
         if (m_y < targetY - deadzone) {
-            m_y += aiSpeed * deltaTime;
+            m_y += botSpeed * deltaTime;
         } else if (m_y > targetY + deadzone) {
-            m_y -= aiSpeed * deltaTime;
+            m_y -= botSpeed * deltaTime;
         }
 
         // Clamp inside playing boundaries

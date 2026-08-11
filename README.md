@@ -1,11 +1,11 @@
-# 🏓 Google Ping-Pong (C++ Edition)
+# 🏓 Ping-Pong (C++ Edition)
 
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://isocpp.org/)
 [![CMake](https://img.shields.io/badge/CMake-3.16%2B-brightgreen.svg)](https://cmake.org/)
 [![Docker Container](https://img.shields.io/badge/Docker-Ready-blue)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An industry-standard, object-oriented, terminal-based **Google Ping-Pong game written in modern C++17**. Features an intelligent autonomous Computer AI opponent with selectable difficulty levels, high-resolution frame delta timing (~60 FPS), non-blocking POSIX input handling, and 24-bit ANSI TrueColor retro graphics.
+An industry-standard, object-oriented, terminal-based **Ping-Pong game written in modern C++17**. Features an intelligent autonomous Computer Bot opponent with selectable difficulty levels, high-resolution frame delta timing (~60 FPS), non-blocking POSIX input handling, and 24-bit ANSI TrueColor retro graphics.
 
 This repository serves as both a production-ready application and an **in-depth C++ tutorial reference** explaining Object-Oriented Programming (OOP), RAII, raw terminal manipulation, mathematical trajectory prediction, and modern CMake build pipelines.
 
@@ -21,7 +21,7 @@ This repository serves as both a production-ready application and an **in-depth 
 | **Const Correctness** | [`Ball.hpp`](include/Ball.hpp) | Marking getter methods with `const` guarantees no instance state mutation. |
 | **Header Guards** | [`Config.hpp`](include/Config.hpp) | `#ifndef CONFIG_HPP ... #define ... #endif` avoids header redefinition errors. |
 | **Namespaces** | [`Config.hpp`](include/Config.hpp) | `namespace PingPong { ... }` prevents identifier collisions in global scope. |
-| **Scoped Enums** | [`Config.hpp`](include/Config.hpp) | `enum class AIDifficulty { Easy, Medium, Hard };` provides strongly typed enumerations. |
+| **Scoped Enums** | [`Config.hpp`](include/Config.hpp) | `enum class BotDifficulty { Easy, Medium, Hard };` provides strongly typed enumerations. |
 | **Compile-time Constants** | [`Config.hpp`](include/Config.hpp) | `constexpr int BOARD_WIDTH = 80;` evaluates values at compile time. |
 | **Chrono High-Res Clock** | [`Game.cpp`](src/Game.cpp) | `std::chrono::high_resolution_clock` regulates frame rate and delta time (`dt`). |
 | **Non-blocking Terminal IO** | [`Renderer.cpp`](src/Renderer.cpp) | Uses POSIX `<termios.h>` to modify `c_lflag` (disabling `ICANON` and `ECHO`). |
@@ -46,12 +46,12 @@ This repository serves as both a production-ready application and an **in-depth 
 +-------+--------+       +----------------+        +---------+------+
 |    Ball.cpp    |       |   Paddle.cpp   |        |  Renderer.cpp  |
 +----------------+       +----------------+        +----------------+
-(Kinematics &    )       (Player & AI     )        (ANSI Terminal   )
+(Kinematics &    )       (Player & Bot    )        (ANSI Terminal   )
 (Bounce Physics  )       (Tracking Logic  )        (Raw Mode Screen )
 ```
 
-### AI Opponent Algorithm
-The AI paddle uses an adaptive tracking heuristic based on the selected difficulty:
+### Bot Opponent Algorithm
+The Bot paddle uses an adaptive tracking heuristic based on the selected difficulty:
 1. **Easy**: Delays tracking until the ball moves towards its boundary (`dirX > 0`) and moves at 55% speed.
 2. **Medium**: Moves at 80% speed with center alignment deadzones to prevent jittering.
 3. **Hard**: Predicts ball trajectory intercept coordinates at 110% speed with linear trajectory estimation.

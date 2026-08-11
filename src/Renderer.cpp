@@ -73,24 +73,24 @@ namespace PingPong {
         std::cout << "\033[2J\033[H" << std::flush;
     }
 
-    void Renderer::render(const Ball& ball, const Paddle& player, const Paddle& ai, AIDifficulty diff, bool paused) const {
+    void Renderer::render(const Ball& ball, const Paddle& player, const Paddle& bot, BotDifficulty diff, bool paused) const {
         std::stringstream ss;
 
         // Move cursor to top-left corner (0,0) instead of clearing screen to prevent flicker
         ss << "\033[H";
 
         // Header Title & Scoreboard
-        ss << Config::COLOR_TITLE << "  === GOOGLE PING-PONG (C++ EDITION) ===  " << Config::COLOR_RESET << "\n";
+        ss << Config::COLOR_TITLE << "  === PING-PONG GAME (C++ EDITION) ===  " << Config::COLOR_RESET << "\n";
         
         std::string diffStr;
         switch (diff) {
-            case AIDifficulty::Easy: diffStr = "EASY"; break;
-            case AIDifficulty::Medium: diffStr = "MEDIUM"; break;
-            case AIDifficulty::Hard: diffStr = "HARD"; break;
+            case BotDifficulty::Easy: diffStr = "EASY"; break;
+            case BotDifficulty::Medium: diffStr = "MEDIUM"; break;
+            case BotDifficulty::Hard: diffStr = "HARD"; break;
         }
 
         ss << Config::COLOR_SCORE << "  [ PLAYER (W/S) : " << player.getScore() 
-           << " ]    AI (" << diffStr << ") : " << ai.getScore() << "    [ Q:Quit  P:Pause ]" 
+           << " ]    BOT (" << diffStr << ") : " << bot.getScore() << "    [ Q:Quit  P:Pause ]" 
            << Config::COLOR_RESET << "\n";
 
         // Top Border
@@ -106,9 +106,9 @@ namespace PingPong {
         int playerY = static_cast<int>(std::round(player.getY()));
         int playerHalfH = player.getHeight() / 2;
 
-        int aiX = static_cast<int>(std::round(ai.getX()));
-        int aiY = static_cast<int>(std::round(ai.getY()));
-        int aiHalfH = ai.getHeight() / 2;
+        int botX = static_cast<int>(std::round(bot.getX()));
+        int botY = static_cast<int>(std::round(bot.getY()));
+        int botHalfH = bot.getHeight() / 2;
 
         for (int y = 0; y < m_height; ++y) {
             ss << Config::COLOR_BORDER << "|" << Config::COLOR_RESET;
@@ -122,9 +122,9 @@ namespace PingPong {
                 else if (x == playerX && (y >= playerY - playerHalfH && y <= playerY + playerHalfH)) {
                     ss << Config::COLOR_PLAYER << "#" << Config::COLOR_RESET;
                 }
-                // AI Paddle (Right side)
-                else if (x == aiX && (y >= aiY - aiHalfH && y <= aiY + aiHalfH)) {
-                    ss << Config::COLOR_AI << "#" << Config::COLOR_RESET;
+                // Bot Paddle (Right side)
+                else if (x == botX && (y >= botY - botHalfH && y <= botY + botHalfH)) {
+                    ss << Config::COLOR_BOT << "#" << Config::COLOR_RESET;
                 }
                 // Center Net Line
                 else if (x == m_width / 2) {
@@ -151,27 +151,26 @@ namespace PingPong {
         std::cout << ss.str() << std::flush;
     }
 
-    AIDifficulty Renderer::renderMenu() const {
+    BotDifficulty Renderer::renderMenu() const {
+        enableRawMode();
         clearScreen();
         std::cout << Config::COLOR_TITLE << "\n"
                   << "   =========================================\n"
-                  << "         GOOGLE PING-PONG (C++ EDITION)     \n"
+                  << "         PING-PONG GAME (C++ EDITION)     \n"
                   << "   =========================================\n"
                   << Config::COLOR_RESET << "\n";
 
-        std::cout << Config::COLOR_SCORE << "  Select AI Difficulty Level:\n\n" << Config::COLOR_RESET;
+        std::cout << Config::COLOR_SCORE << "  Select Difficulty Level:\n\n" << Config::COLOR_RESET;
         std::cout << "  [1] Easy   (Relaxed pace)\n";
         std::cout << "  [2] Medium (Standard challenge)\n";
-        std::cout << "  [3] Hard   (Expert precise AI)\n\n";
+        std::cout << "  [3] Hard   (Expert precise bot)\n\n";
         std::cout << "  Press key [1, 2, or 3] to start: " << std::flush;
-
-        enableRawMode();
 
         while (true) {
             char key = readKey();
-            if (key == '1') return AIDifficulty::Easy;
-            if (key == '2') return AIDifficulty::Medium;
-            if (key == '3') return AIDifficulty::Hard;
+            if (key == '1') return BotDifficulty::Easy;
+            if (key == '2') return BotDifficulty::Medium;
+            if (key == '3') return BotDifficulty::Hard;
             usleep(10000); // 10ms sleep to avoid 100% CPU lock in menu loop
         }
     }
@@ -184,11 +183,11 @@ namespace PingPong {
                       << "          YOU WON! CONGRATULATIONS!        \n"
                       << "  =========================================\n"
                       << Config::COLOR_RESET << "\n";
-            std::cout << Config::COLOR_SCORE << "  You defeated the Computer AI!\n" << Config::COLOR_RESET;
+            std::cout << Config::COLOR_SCORE << "  You defeated the Computer!\n" << Config::COLOR_RESET;
         } else {
-            std::cout << Config::COLOR_AI
+            std::cout << Config::COLOR_BOT
                       << "  =========================================\n"
-                      << "          GAME OVER - COMPUTER AI WON      \n"
+                      << "          GAME OVER - COMPUTER WON         \n"
                       << "  =========================================\n"
                       << Config::COLOR_RESET << "\n";
             std::cout << Config::COLOR_SCORE << "  Better luck next time!\n" << Config::COLOR_RESET;

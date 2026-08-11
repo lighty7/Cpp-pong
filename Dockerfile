@@ -1,5 +1,5 @@
 # ==============================================================================
-# Multi-Stage Dockerfile for C++ Google Ping-Pong Game
+# Multi-Stage Dockerfile for C++ Ping-Pong Game
 # ==============================================================================
 # TUTORIAL CONCEPTS:
 # Multi-stage Docker builds separate build dependencies (compilers, headers)

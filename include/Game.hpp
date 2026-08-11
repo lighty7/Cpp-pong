@@ -29,9 +29,9 @@ namespace PingPong {
     private:
         Ball m_ball;
         Paddle m_player;
-        Paddle m_ai;
+        Paddle m_bot;
         Renderer m_renderer;
-        AIDifficulty m_difficulty;
+        BotDifficulty m_difficulty;
         GameState m_state;
         bool m_running;
         bool m_playerWon;

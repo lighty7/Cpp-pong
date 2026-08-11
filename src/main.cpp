@@ -1,6 +1,6 @@
 /**
  * @file main.cpp
- * @brief Entry point for the C++ Google Ping-Pong Game.
+ * @brief Entry point for the C++ Ping-Pong Game.
  * 
  * TUTORIAL SYNTAX & CONCEPTS:
  * 1. `main()` Function: Program execution starting point. Returns integer status code
